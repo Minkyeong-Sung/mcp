@@ -82,10 +82,6 @@ public class MCPClient {
             
                         // response
                     	HttpResponse response = client.execute(request);
-
-                        // °á°ú timer
-                        Runtime rt = Runtime.getRuntime();
-
                         
                         statusCode = response.getStatusLine().getStatusCode();
                         
@@ -103,11 +99,16 @@ public class MCPClient {
                         }
                         else {
                         	respEntity = response.getEntity();
+
+
                         	System.out.println("respEntity : " + respEntity);
                         	System.out.println("ReasonPhrase : " + response.getStatusLine().getReasonPhrase());
                         	
                         	String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8.name());
                             System.out.println("Response body: " + responseBody);
+                            
+                            System.out.println("Response body type : " + response.getEntity().getClass().getName());
+                            
                         	
 
                         }
