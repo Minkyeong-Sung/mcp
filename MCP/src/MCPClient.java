@@ -38,38 +38,37 @@ public class MCPClient {
 		
 		String https_url = "http://10.107.66.41:8081/mcs/ServerSearch";
 		HttpPost request = new HttpPost(https_url);
-        HttpClient client = HttpClientBuilder.create().build();
         String msg = null;
         int statusCode = 0;
         HttpEntity respEntity = null;
+        
+        // read body from json file  
+        File path = new File("C:/GlobalMCTClient/");
+        File[] fileList = path.listFiles();
 
-        try {
-            // Header
-            String tid = UUID.randomUUID().toString();
-            Header[] headers = new Header[]{ new BasicHeader("Content-Type", "application/json"),
-                    new BasicHeader("TID", tid),
-                    new BasicHeader("VIN", "SRCH_LOCAL_TEST1"), new BasicHeader("Language", "2") };
-
-            request.setHeaders(headers);
-            
-            
-            // read body from json file  
-            File path = new File("C:/GlobalMCTClient/");
-            File[] fileList = path.listFiles();
-
-            if(fileList.length >0){
-
-                int sucessCnt = 0;
-                int failCnt = 0;
-                long beforeTime = System.currentTimeMillis();
-
+        if(fileList.length >0){
+        	
+        	try {
                 for(File file : fileList){
 
-                    sucessCnt = 0;
-                    failCnt = 0;
+                    HttpClient client = HttpClientBuilder.create().build();
+                	// Header
+                    String tid = UUID.randomUUID().toString();
+                    Header[] headers = new Header[]{ new BasicHeader("Content-Type", "application/json"),
+                            new BasicHeader("TID", tid),
+                            new BasicHeader("VIN", "SRCH_LOCAL_TEST1"), new BasicHeader("Language", "2") };
+
+                	request.setHeaders(headers);
 
                     // json 파일이고, 읽을 수 있으면 실행
                     if(file.getName().endsWith(".json") && file.canRead()){
+                    	
+                    	System.out.println("=================================");
+                    	System.out.println("test file : " + file.getName());
+                    	
+                    	// start time 
+                    	long start = System.currentTimeMillis();
+
                     	
                     	// read json file 
                     	Object ob = new JSONParser().parse(new FileReader(file));
@@ -85,50 +84,51 @@ public class MCPClient {
                         
                         statusCode = response.getStatusLine().getStatusCode();
                         
+                        // end time 
+                        long end = System.currentTimeMillis();
+                        
+                        
                         if(statusCode != HttpStatus.SC_OK) {
                         	
-                        	switch(statusCode) {
-	                        	case 404:
-	                        		msg = "404 error : [";
-	                        		break;
-	                        	case 503:
-	                        		msg = "503 error : [";
-	                        		break;
-	                        		
-                        	}
+                        	System.out.print("status : " + statusCode  + " error | " );
+                        	
+//                            	switch(statusCode) {
+//    	                        	case 404:
+//    	                        		msg = "404 error : [";
+//    	                        		break;
+//    	                        	case 503:
+//    	                        		msg = "503 error : [";
+//    	                        		break;	
+//                            	}
                         }
                         else {
+                        	
+                        	System.out.print("status : " + statusCode + " | " );
+                        	
                         	respEntity = response.getEntity();
 
+//                            	System.out.println("respEntity : " + respEntity);
+//                            	System.out.println("ReasonPhrase : " + response.getStatusLine().getReasonPhrase());
+//                            	
+//                            	String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+//                                System.out.println("Response body: " + responseBody);
+                       }
+                        
+                    	System.out.println(" time : " + (end-start) );
 
-                        	System.out.println("respEntity : " + respEntity);
-                        	System.out.println("ReasonPhrase : " + response.getStatusLine().getReasonPhrase());
-                        	
-                        	String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8.name());
-                            System.out.println("Response body: " + responseBody);
-                            
-                            System.out.println("Response body type : " + response.getEntity().getClass().getName());
-                            
-                        	
-
-                        }
                         // 복호화 decompress
 
                     }
                 }
+	        } catch (IOException e) {
+	        	System.out.println("try-catch error :" + e.getMessage());
+	            e.printStackTrace();
+	            
+	        }
 
-//                long afterTime = System.currentTimeMillis();
-//                long secDiffTime = (afterTime - beforeTime)/1000;
-//                System.out.println("시간차이(m) : "+secDiffTime);
-//                System.out.println( "번 " + secDiffTime +  " Time(m) 요청 " + fileList.length + "| 응답 " + sucessCnt + " | 실패 "  );
-            }
-            else{
-                System.out.println("No json files... FAIL ");
-            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        }
+        else{
+            System.out.println("No json files... FAIL ");
         }
 
     }
