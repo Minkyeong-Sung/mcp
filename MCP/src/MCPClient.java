@@ -55,26 +55,31 @@ public class MCPClient {
 		System.out.println("(1) weather (2)serverSearch (3)incident (4)traffic");
 		System.out.print(">>>> ");
 		int number = sc.nextInt();
+		String vinNumber = "LOCAL_TEST_";
 		
-		String https_url = "http://10.107.66.41:8081/mcs/";
+		String https_url = "http://10.107.66.41:8081/";
 		String filePath = "C:/GlobalMCTClient/";
 		
 		switch(number) {
 			case 1:
 				https_url += wt;
 				filePath += wt_file;
+				vinNumber += wt_file;
 				break;
 			case 2:
 				https_url += search;
 				filePath += search_file;
+				vinNumber += search_file;
 				break;
 			case 3:
 				https_url += inc;
 				filePath += incident_file;
+				vinNumber += incident_file;
 				break;
 			case 4:
 				https_url += trf;
 				filePath += traffic_file;
+				vinNumber += traffic_file;
 				break;
 		}
 		
@@ -98,7 +103,7 @@ public class MCPClient {
                     String tid = UUID.randomUUID().toString();
                     Header[] headers = new Header[]{ new BasicHeader("Content-Type", "application/json"),
                             new BasicHeader("TID", tid),
-                            new BasicHeader("VIN", "SRCH_LOCAL_TEST1"), new BasicHeader("Language", "2") };
+                            new BasicHeader("VIN", vinNumber), new BasicHeader("Language", "2") };
 
                 	request.setHeaders(headers);
 
