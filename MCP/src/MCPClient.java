@@ -27,23 +27,65 @@ import org.apache.http.util.EntityUtils;
 
 @SuppressWarnings("deprecation")
 public class MCPClient {
+	
+	private String wt = "mcs/weather/point/ver2";
+	private String search = "mcs/ServerSearch";
+	private String inc = "mcs/incident";
+	private String trf ="mcs/traffic";
+	
+	private String wt_file = "weather";
+	private String search_file = "ServerSearch";
+	private String incident_file = "incident";
+	private String traffic_file = "traffic";
+	
 
 	public static void main(String[] args) throws ParseException {
 		// TODO Auto-generated method stub
+		
+
 		new MCPClient().mcpClientService();
 
 	}
 
 	private void mcpClientService() throws ParseException {
 		
-		String https_url = "http://10.107.66.41:8081/mcs/ServerSearch";
+		Scanner sc = new Scanner(System.in);
+		
+		System.out.println("Please enter number");
+		System.out.println("(1) weather (2)serverSearch (3)incident (4)traffic");
+		System.out.print(">>>> ");
+		int number = sc.nextInt();
+		
+		String https_url = "http://10.107.66.41:8081/mcs/";
+		String filePath = "C:/GlobalMCTClient/";
+		
+		switch(number) {
+			case 1:
+				https_url += wt;
+				filePath += wt_file;
+				break;
+			case 2:
+				https_url += search;
+				filePath += search_file;
+				break;
+			case 3:
+				https_url += inc;
+				filePath += incident_file;
+				break;
+			case 4:
+				https_url += trf;
+				filePath += traffic_file;
+				break;
+		}
+		
+		
 		HttpPost request = new HttpPost(https_url);
         String msg = null;
         int statusCode = 0;
         HttpEntity respEntity = null;
         
         // read body from json file  
-        File path = new File("C:/GlobalMCTClient/");
+        File path = new File(filePath);
         File[] fileList = path.listFiles();
 
         if(fileList.length >0){
