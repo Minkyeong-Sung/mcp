@@ -2,13 +2,20 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.UUID;
+
+import javax.swing.text.AbstractDocument.Content;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
@@ -101,10 +108,10 @@ public class MCPClient {
                     HttpClient client = HttpClientBuilder.create().build();
                 	// Header
                     String tid = UUID.randomUUID().toString();
-                    Header[] headers = new Header[]{ new BasicHeader("Content-Type", "application/json"),
+                    Header[] headers = new Header[]{ new BasicHeader("Content-Type", "application/json; charset=UTF-8"),
                             new BasicHeader("TID", tid),
                             new BasicHeader("VIN", vinNumber), new BasicHeader("Language", "2") };
-
+                    
                 	request.setHeaders(headers);
 
                     // json 파일이고, 읽을 수 있으면 실행
@@ -123,42 +130,50 @@ public class MCPClient {
                     	
                     	// set body 
                     	//String jsonString = js.toString();
-                    	HttpEntity httpEntity = new StringEntity(JSONObject.toJSONString(js), "utf-8");
+                    	HttpEntity httpEntity = new StringEntity(JSONObject.toJSONString(js), "UTF-8");
+                  
                     	request.setEntity(httpEntity);
+                    	
             
                         // response
                     	HttpResponse response = client.execute(request);
-                        
+                    			
+                    	response.addHeader("Content-Type", "application/json; charset=UTF-8");
+                    	
+                    	
+                    	//HttpEntity entity = response.getEntity();
+                    	HttpEntity entity = MultipartEntityBuilder
+                    			.create()
+                    			.setCharset(StandardCharsets.UTF_8)
+                    			.setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                    			.addBinaryBody("file", JSONObject.toJSONString(js).getBytes(StandardCharsets.UTF_8),
+                    					ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), StandardCharsets.UTF_8),file.getName()).build(); 
+                    	
+                    	String responseString = EntityUtils.toString(entity, "UTF-8");
+//                    	System.out.println(">>> "+responseString);
+                    	
                         statusCode = response.getStatusLine().getStatusCode();
                         
+                        response.setEntity(httpEntity);
                         // end time 
                         long end = System.currentTimeMillis();
                         
                         
                         if(statusCode != HttpStatus.SC_OK) {
                         	
-                        	System.out.print("status : " + statusCode  + " error | " );
-                        	
-//                            	switch(statusCode) {
-//    	                        	case 404:
-//    	                        		msg = "404 error : [";
-//    	                        		break;
-//    	                        	case 503:
-//    	                        		msg = "503 error : [";
-//    	                        		break;	
-//                            	}
+                        	System.out.println("status : " + statusCode  + " error | " );
+
                         }
                         else {
                         	
-                        	System.out.print("status : " + statusCode + " | " );
+                        	System.out.println("status : " + statusCode + " | " );
                         	
+//                        	response.setHeader("Content-Type", "text/plain; charset=UTF-8");
                         	respEntity = response.getEntity();
-
-//                            	System.out.println("respEntity : " + respEntity);
-//                            	System.out.println("ReasonPhrase : " + response.getStatusLine().getReasonPhrase());
-//                            	
-//                            	String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-//                                System.out.println("Response body: " + responseBody);
+//                        	System.out.println("entity.getContent : " + entity.getContent());
+//                        	System.out.println("response.getEntity().getContent : " + response.getEntity().getContent().toString() );
+                        	String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+//                            System.out.println("Response body: " + responseBody);
                        }
                         
                     	System.out.println(" time : " + (end-start) );
@@ -175,8 +190,11 @@ public class MCPClient {
 
         }
         else{
+        	System.out.println("=================================");
             System.out.println("No json files... FAIL ");
         }
 
+        System.out.println("=================================");
+        System.out.println("finished program...");
     }
 }
