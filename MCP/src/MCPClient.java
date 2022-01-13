@@ -66,6 +66,8 @@ public class MCPClient extends Thread{
    @Override
    public void run() {
       try{
+    	  MCPClient.sleep(1000);
+    	  
          //Executing the request
          CloseableHttpResponse httpresponse = httpClient.execute(httppost);
 
@@ -168,8 +170,9 @@ public class MCPClient extends Thread{
               
                 	httpget1.setEntity(httpEntity);
                 	
+                
                 	thread[idx] = new MCPClient(httpclient, httpget1, file.getName());
-        
+    
                     // response
                 	//HttpResponse response = client.execute(request);
                 	idx ++;
@@ -178,10 +181,12 @@ public class MCPClient extends Thread{
         	
         	//Starting all the threads
             for(int i =0; i<len; i++) {
+            	Thread.sleep(1000);
             	thread[i].start();
             }
             
             for(int i =0; i<len; i++) {
+            	Thread.sleep(1000);
             	thread[i].join();
             }
         }
@@ -192,12 +197,7 @@ public class MCPClient extends Thread{
 
         System.out.println("=================================");
         System.out.println("finished program...");
-	    
-	    
-	    //Thread »ý¼º 
-//	    MCPClient thread1 = new MCPClient(httpclient, httpget1, file.getName());
-//	    MCPClient thread4 = new MCPClient(httpclient, httpget1, file.getName());
-	    
+	   
 	    
 	}
 
